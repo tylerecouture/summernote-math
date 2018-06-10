@@ -13,23 +13,21 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.js"></script>
 
-    <!-- MathQuill -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.min.js"></script>
-
-    <script>
-        var MQ = MathQuill.getInterface(2);
-    </script>
+    <!-- KaTeX -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js"></script>
 
     <script src="../summernote-math.js"></script>
-    <link href="../summernote-math.css" rel="stylesheet">
+    <!--<link href="../summernote-math.css" rel="stylesheet">-->
 
 </head>
 <body>
 <h3>Demo of summernote-math extension:</h3>
 <div id="summernote" >
     <p>An example equation:  $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$</p>
-    <p>Solve <span id="problem">ax^2 + bx + c = 0</span>.</p>
+
+
+    <!--<p id="math1">c = \pm\sqrt{a^2 + b^2}</p>-->
 
 
 </div>
@@ -44,14 +42,12 @@
                 ['table', ['table']],
                 ['misc', ['codeview', 'math']]
             ],
-            // popover: {
-            //     table: [
-            //       ['add', ['addRowDown', 'addRowUp', 'addColLeft', 'addColRight', 'toggle']],
-            //       ['delete', ['deleteRow', 'deleteCol', 'deleteTable']],
-            //       ['custom', ['tableStyles']]
-            //     ],
-            // },
         });
+        // math_el = document.getElementById('math2');
+        // math_el.remove();
+        // console.log(math_el);
+        // katex.render(math_el.textContent,math_el )
+
     });
 
 </script>

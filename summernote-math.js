@@ -13,7 +13,7 @@
                 dialogTitle:'Insert Math',
                 tooltip:'Insert Math',
                 pluginTitle:'Insert math',
-                ok:'OK'
+                ok:'Insert'
             }
         }
     });
@@ -49,31 +49,43 @@
                 var $container=options.dialogsInBody?$(document.body):$editor;
                 var body=`<div class="form-group">
 
-                    <p>Type math here: <span id="math-field"></span></p>
-                    <p>LaTeX of what you typed: <span id="latex"></span></p>
+                    <p>Type LaTeX here: </p>
+                    <p><input style="width:100%;" id="note-latex" value=" "></p>
+                    <p>Math of what you typed: </p>
+                    <p id="note-math" style="min-height:20px;"></p>
     
                     <script>
-                    var mathFieldSpan = document.getElementById('math-field');
-                    var latexSpan = document.getElementById('latex');
-    
-                    var MQ = MathQuill.getInterface(2); // for backcompat
-                    var mathField = MQ.MathField(mathFieldSpan, {
-                        spaceBehavesLikeTab: true, // configurable
-                        handlers: {
-                            edit: function() { // useful event handlers
-                                latexSpan.textContent = mathField.latex(); // simple API
-                            }
+                    let mathSpan = document.getElementById('note-math');
+                    var latexSpan = document.getElementById('note-latex');
+                    
+                    mathSpan.innerHTML="";
+                    latexSpan.value = "";
+                    
+                    latexSpan.addEventListener('keyup', renderMath);
+
+                    function renderMath(){
+                        let oldMath = mathSpan.innerHTML;
+                        
+                        try {
+                            katex.render(this.value, mathSpan);
                         }
-                    });
+                        catch(e) { 
+                            // KaTeX parse error while typing
+                            mathSpan.innerHTML = oldMath;
+                        }
+                    }
+
                     </script>
 
                     </div>`;
                 this.$dialog=ui.dialog({
                     title:lang.math.dialogTitle,
                     body:body,
-                    footer:'<button href="#" class="btn btn-primary note-math-btn">'+lang.math.ok+'</button>'
+                    footer:'<button class="btn btn-primary note-math-btn">'+lang.math.ok+'</button>'
                 }).render().appendTo($container);
             };
+
+
 
             this.destroy=function(){
                 ui.hideDialog(this.$dialog);
@@ -94,29 +106,30 @@
             };
 
             this.show=function(){
-                //var $math=$($editable.data('target'));
-                var editorInfo = {
-
-                };
-                this.showMathDialog(editorInfo).then(function(editorInfo){
+                // to edit an existing element
+                // var $vid = $($editable.data('target'));
+                var mathInfo = {};
+                //     vidDom: $vid,
+                //     href: $vid.attr('href')
+                //     };
+                this.showMathDialog(mathInfo).then(function(mathInfo){
                     ui.hideDialog(self.$dialog);
-                    var $mathHTML=$('<div>');
-                    var latex =  document.getElementById('latex');
-                    var MQ = MathQuill.getInterface(2);
-                    MQ.StaticMath($mathHTML[0]);
-                    //$mathHTML.html(equation);
-                    console.log($mathHTML[0]);
+                    // var $mathHTML=$('<div class="note-math">');
+                    var $mathNode=self.$dialog.find('#note-math');
+                    // var mathSpan = document.getElementById('math');
+                    // $mathHTML.html(mathspan.value);
+                    // console.log($mathHTML[0]);
 
                     // We restore cursor position and element is inserted in correct pos.
                     context.invoke('editor.restoreRange');
                     context.invoke('editor.focus');
-                    context.invoke('editor.insertNode',$mathHTML[0]);
+                    context.invoke('editor.insertNode',$mathNode[0]);
                 });
             };
 
             this.showMathDialog = function(editorInfo) {
-                var $editBtn=self.$dialog.find('.note-math-btn');
                 return $.Deferred(function (deferred) {
+                    $editBtn = self.$dialog.find('.note-math-btn');
                     ui.onDialogShown(self.$dialog, function () {
 
                         context.triggerEvent('dialog.shown');
@@ -136,6 +149,13 @@
                     ui.showDialog(self.$dialog);
                 });
             };
+
+            this.insertMath = function(mathNode){
+                print(mathNode)
+                context.invoke('editor.restoreRange');
+                context.invoke('editor.focus');
+                context.invoke('editor.insertNode',mathNode);
+            }
 
         }
     });
