@@ -50,16 +50,15 @@
                 var body=`<div class="form-group">
 
                     <p>Type LaTeX here: </p>
-                    <p><input style="width:100%;" id="note-latex" value=" "></p>
+                    <p><input id="note-latex" class="form-control"></p>
                     <p>Math of what you typed: </p>
-                    <p id="note-math" style="min-height:20px;"></p>
+                    <div style="min-height:20px;"><span class="note-math"></span></div>
     
                     <script>
-                    let mathSpan = document.getElementById('note-math');
-                    var latexSpan = document.getElementById('note-latex');
-                    
-                    mathSpan.innerHTML="";
-                    latexSpan.value = "";
+                    let $mathElement = $('.note-math');
+                    let mathSpan = $mathElement[0];
+                    let latexSpan = document.getElementById('note-latex');
+
                     
                     latexSpan.addEventListener('keyup', renderMath);
 
@@ -106,24 +105,25 @@
             };
 
             this.show=function(){
+
+                // reset the dailog input and math
+                self.$dialog.find('.note-math').empty();
+                self.$dialog.find('#note-latex').val('');
+
                 // to edit an existing element
                 // var $vid = $($editable.data('target'));
-                var mathInfo = {};
+                let mathInfo = {};
                 //     vidDom: $vid,
                 //     href: $vid.attr('href')
                 //     };
                 this.showMathDialog(mathInfo).then(function(mathInfo){
                     ui.hideDialog(self.$dialog);
-                    // var $mathHTML=$('<div class="note-math">');
-                    var $mathNode=self.$dialog.find('#note-math');
-                    // var mathSpan = document.getElementById('math');
-                    // $mathHTML.html(mathspan.value);
-                    // console.log($mathHTML[0]);
-
+                    let $mathNode=self.$dialog.find('.note-math').clone();
                     // We restore cursor position and element is inserted in correct pos.
                     context.invoke('editor.restoreRange');
                     context.invoke('editor.focus');
                     context.invoke('editor.insertNode',$mathNode[0]);
+
                 });
             };
 
@@ -150,12 +150,6 @@
                 });
             };
 
-            this.insertMath = function(mathNode){
-                print(mathNode)
-                context.invoke('editor.restoreRange');
-                context.invoke('editor.focus');
-                context.invoke('editor.insertNode',mathNode);
-            }
 
         }
     });

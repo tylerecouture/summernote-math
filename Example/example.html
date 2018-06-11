@@ -24,12 +24,10 @@
 <body>
 <h3>Demo of summernote-math extension:</h3>
 <div id="summernote" >
-    <p>An example equation:  $$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$</p>
-
-
-    <!--<p id="math1">c = \pm\sqrt{a^2 + b^2}</p>-->
-
-
+    <p>Hit the Sigma/Sum button, &sum;, then enter the LaTeX markup of a math expression.</p>
+    <p>For example, try entering this:</p>
+    <pre>c = \pm\sqrt{a^2 + b^2}</pre>
+    <p>But make sure you select a good spot for it down here somewhere, as it will insert inline.<br></p>
 </div>
 
 <script>
@@ -38,16 +36,11 @@
             height: 400,
             toolbar: [
                 ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['fontsize', ['fontsize']],
-                ['table', ['table']],
-                ['misc', ['codeview', 'math']]
+                ['insert', ['picture', 'link', 'math']],
+                ['para', ['paragraph']],
+                ['misc', ['codeview']]
             ],
         });
-        // math_el = document.getElementById('math2');
-        // math_el.remove();
-        // console.log(math_el);
-        // katex.render(math_el.textContent,math_el )
-
     });
 
 </script>
