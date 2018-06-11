@@ -25,9 +25,7 @@ Use [LaTeX markup, as supported by KaTeX](https://khan.github.io/KaTeX/function-
 
 or
 
-`f(x) = \int_{-\infty}^\infty
-     \hat f(\xi)\,e^{2 \pi i \xi x}
-     \,d\xi`
+`f(x) = \int_{-\infty}^\infty \hat f(\xi)\,e^{2 \pi i \xi x} \,d\xi`
 
 ### To Do
 
