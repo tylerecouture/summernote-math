@@ -49,9 +49,9 @@
                 var $container=options.dialogsInBody?$(document.body):$editor;
                 var body=`<div class="form-group">
 
-                    <p>Type LaTeX here: </p>
+                    <p>Type <a href="https://khan.github.io/KaTeX/">LaTeX markup</a> here: </p>
                     <p><input id="note-latex" class="form-control"></p>
-                    <p>Math of what you typed: </p>
+                    <p>Preview: </p>
                     <div style="min-height:20px;"><span class="note-math"></span></div>
     
                     <script>
