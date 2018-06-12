@@ -13,7 +13,8 @@
                 dialogTitle:'Insert Math',
                 tooltip:'Insert Math',
                 pluginTitle:'Insert math',
-                ok:'Insert'
+                ok:'Insert',
+                cancel:'Cancel'
             }
         }
     });
@@ -145,9 +146,15 @@
 
                     if ($selectedMathNode === null)
                         context.invoke('editor.insertNode',$mathNodeClone[0]);
-                    else // if we are editing an existing mathNode, just replace the contents:
-                        $selectedMathNode.html($mathNodeClone.html());
+                    else {// if we are editing an existing mathNode, just replace the contents:
+                        if( $.trim($latexNode.html())=='') { // unless there's nothing there, then delete the node
+                            $selectedMathNode.remove()
+                        }
+                        else {
+                            $selectedMathNode.html($mathNodeClone.html());
+                        }
 
+                    }
                 });
             };
 
