@@ -6,9 +6,12 @@ A summernote plugin that uses [KaTeX](https://khan.github.io/KaTeX/) to insert r
 https://rawgit.com/tylerecouture/summernote-math/master/Example/example.html
 
 ### Usage
-
-1. Include the js
-2. add `math` to your toolbar:
+1. Include KaTex:
+    1.  https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css
+    2.  https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js
+1. Include summernote-math.js:
+ 
+2. add `math` to your toolbar somewhere:
 ```
  $('#summernote').summernote({
      toolbar: [
