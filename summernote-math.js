@@ -26,14 +26,15 @@
         'math':function(context){
             var self=this;
             var ui=$.summernote.ui;
-            var $note=context.layoutInfo.note;
+            //var $note=context.layoutInfo.note;
             var $editor=context.layoutInfo.editor;
-            var $editable=context.layoutInfo.editable;
+            //var $editable=context.layoutInfo.editable;
             var options=context.options;
             var lang=options.langInfo;
 
+
             context.memo('button.math',function(){
-                var button=ui.button({
+                let button=ui.button({
                     contents:options.math.icon,
                     tooltip:lang.math.tooltip,
                     click:function(e){
@@ -45,17 +46,17 @@
                 return button.render();
             });
 
-            this.initialize=function(){
-                var $container=options.dialogsInBody?$(document.body):$editor;
-                var body=`<div class="form-group">
+            self.initialize = function(){
+                let $container=options.dialogsInBody?$(document.body):$editor;
+                let body=`<div class="form-group">
 
-                    <p>Type <a href="https://khan.github.io/KaTeX/">LaTeX markup</a> here: </p>
+                    <p>Type <a href="https://khan.github.io/KaTeX/function-support.html" target=_blank">LaTeX markup</a> here: </p>
                     <p><input id="note-latex" class="form-control"></p>
                     <p>Preview: </p>
-                    <div style="min-height:20px;"><span class="note-math"></span></div>
+                    <div style="min-height:20px;"><span class="note-math-dialog"></span></div>
     
                     <script>
-                    let $mathElement = $('.note-math');
+                    let $mathElement = $('.note-math-dialog');
                     let mathSpan = $mathElement[0];
                     let latexSpan = document.getElementById('note-latex');
 
@@ -69,7 +70,8 @@
                             katex.render(this.value, mathSpan);
                         }
                         catch(e) { 
-                            // KaTeX parse error while typing
+                            // KaTeX parse error while typing, to prevent rendered math from dissappearing while typing
+                            // partially complete markup
                             mathSpan.innerHTML = oldMath;
                         }
                     }
@@ -77,7 +79,7 @@
                     </script>
 
                     </div>`;
-                this.$dialog=ui.dialog({
+                self.$dialog=ui.dialog({
                     title:lang.math.dialogTitle,
                     body:body,
                     footer:'<button class="btn btn-primary note-math-btn">'+lang.math.ok+'</button>'
@@ -86,50 +88,72 @@
 
 
 
-            this.destroy=function(){
+            self.destroy = function(){
                 ui.hideDialog(this.$dialog);
-                this.$dialog.remove();
+                self.$dialog.remove();
             };
 
-            this.bindEnterKey=function($input,$btn){
+            self.bindEnterKey = function($input,$btn){
                 $input.on('keypress',function(event){
                     if(event.keyCode===13)$btn.trigger('click');
                 });
             };
 
-            this.bindLabels=function(){
+            self.bindLabels = function(){
                 self.$dialog.find('.form-control:first').focus().select();
                 self.$dialog.find('label').on('click',function(){
                     $(this).parent().find('.form-control:first').focus();
                 });
             };
 
-            this.show=function(){
+            self.show = function(){
 
-                // reset the dailog input and math
-                self.$dialog.find('.note-math').empty();
-                self.$dialog.find('#note-latex').val('');
+                let $mathSpan = self.$dialog.find('.note-math-dialog');
+                let $latexSpan = self.$dialog.find('#note-latex');
 
-                // to edit an existing element
-                // var $vid = $($editable.data('target'));
-                let mathInfo = {};
-                //     vidDom: $vid,
-                //     href: $vid.attr('href')
-                //     };
-                this.showMathDialog(mathInfo).then(function(mathInfo){
+                let $selectedMathNode = self.getSelectedMath();
+
+                if ($selectedMathNode === null) {
+                    // reset the dialog input and math
+                    $mathSpan.empty();
+                    $latexSpan.val('');
+                }
+                else { // edit the selected math node
+                    // get the hidden LaTeX markup from the selected math node
+                    let hiddenLatex = $selectedMathNode.find('.note-latex').text();
+                    $latexSpan.val(hiddenLatex);
+                    katex.render(hiddenLatex, $mathSpan[0]);
+                }
+
+                let mathInfo = {}; // not used
+
+                self.showMathDialog(mathInfo).then(function(mathInfo){
                     ui.hideDialog(self.$dialog);
-                    let $mathNode=self.$dialog.find('.note-math').clone();
+                    let $mathNodeClone = $mathSpan.clone();
+                    let $latexNode = $('<span>');
+                    $latexNode.addClass('note-latex')
+                        .css('display', 'none')
+                        .text($latexSpan.val())
+                        .appendTo($mathNodeClone);
+
+                    // So we don't pick up the dialog node when selecting math nodes in the editor
+                    $mathNodeClone.removeClass('note-math-dialog').addClass('note-math');
+
                     // We restore cursor position and element is inserted in correct pos.
                     context.invoke('editor.restoreRange');
                     context.invoke('editor.focus');
-                    context.invoke('editor.insertNode',$mathNode[0]);
+
+                    if ($selectedMathNode === null)
+                        context.invoke('editor.insertNode',$mathNodeClone[0]);
+                    else // if we are editing an existing mathNode, just replace the contents:
+                        $selectedMathNode.html($mathNodeClone.html());
 
                 });
             };
 
-            this.showMathDialog = function(editorInfo) {
+            self.showMathDialog = function(editorInfo) {
                 return $.Deferred(function (deferred) {
-                    $editBtn = self.$dialog.find('.note-math-btn');
+                    let $editBtn = self.$dialog.find('.note-math-btn');
                     ui.onDialogShown(self.$dialog, function () {
 
                         context.triggerEvent('dialog.shown');
@@ -148,6 +172,23 @@
                     });
                     ui.showDialog(self.$dialog);
                 });
+            };
+
+            self.getSelectedMath = function() {
+                let selection = window.getSelection();
+                if( selection ){
+                    // get all math nodes
+                    let $selectedMathNode = null;
+                    let $mathNodes = $('.note-math');
+                    $mathNodes.each(function() {
+                        // grab first math node in the selection (including partial).
+                        if(selection.containsNode(this, true)) {
+                            $selectedMathNode = $(this);
+                        }
+                    });
+                    return $selectedMathNode;
+                }
+
             };
 
 
