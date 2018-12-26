@@ -33,6 +33,15 @@
             var options=context.options;
             var lang=options.langInfo;
 
+            self.events = {
+              'summernote.keyup summernote.mouseup summernote.change summernote.scroll': () => {
+                self.update();
+              },
+              'summernote.disable summernote.dialog.shown': () => {
+                self.hide();
+              },
+            };
+
 
             context.memo('button.math',function(){
                 let button=ui.button({
@@ -85,13 +94,59 @@
                     body:body,
                     footer:'<button class="btn btn-primary note-math-btn">'+lang.math.ok+'</button>'
                 }).render().appendTo($container);
+
+                self.$popover = ui.popover({
+                  className: 'note-math-popover'
+                }).render().appendTo(options.container);
+                const $content = self.$popover.find('.popover-content,.note-popover-content');
+                context.invoke('buttons.build', $content, ['math']);
             };
 
+            self.hasMath = function(node) {
+              return node && $(node).hasClass('note-math');
+            };
 
+            self.isOnMath = function(range) {
+              const ancestor = $.summernote.dom.ancestor(range.sc, self.hasMath);
+              return !!ancestor && (ancestor === $.summernote.dom.ancestor(range.ec, self.hasMath));
+            };
+
+            self.update = function() {
+              // Prevent focusing on editable when invoke('code') is executed
+              if (!context.invoke('editor.hasFocus')) {
+                self.hide();
+                return;
+              }
+
+              const rng = context.invoke('editor.getLastRange');
+              if (rng.isCollapsed() && self.isOnMath(rng)) {
+                const node = $.summernote.dom.ancestor(rng.sc, self.hasMath);
+                const latex = $(node).find('.note-latex');
+
+                if (latex.text().length !== 0) {
+                  self.$popover.find('button').html(latex.text());
+                  const pos = $.summernote.dom.posFromPlaceholder(node);
+                  self.$popover.css({
+                    display: 'block',
+                    left: pos.left,
+                    top: pos.top,
+                  });
+                } else {
+                  self.hide();
+                }
+              } else {
+                self.hide();
+              }
+            }
+
+            self.hide = function() {
+              self.$popover.hide();
+            }
 
             self.destroy = function(){
                 ui.hideDialog(this.$dialog);
                 self.$dialog.remove();
+                self.$popover.remove();
             };
 
             self.bindEnterKey = function($input,$btn){
