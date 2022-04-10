@@ -46,6 +46,7 @@
             context.memo('button.math',function(){
                 let button=ui.button({
                     contents:options.math.icon,
+                    container:false,
                     tooltip:lang.math.tooltip,
                     click:function(e){
                         // Cursor position must be saved because is lost when popup is opened.
@@ -61,28 +62,33 @@
                 let body=`<div class="form-group">
 
                     <p>Type <a href="https://khan.github.io/KaTeX/function-support.html" target=_blank">LaTeX markup</a> here: </p>
-                    <p><input id="note-latex" class="form-control"></p>
+                    <p><input class="note-latex form-control"></p>
                     <p>Preview: </p>
                     <div style="min-height:20px;"><span class="note-math-dialog"></span></div>
     
                     <script>
-                    let $mathElement = $('.note-math-dialog');
-                    let mathSpan = $mathElement[0];
-                    let latexSpan = document.getElementById('note-latex');
+                    var $mathElement = $('.note-math-dialog');
+                    var mathSpan = $mathElement;
+                    var latexSpan = document.getElementsByClassName('note-latex');
 
                     
-                    latexSpan.addEventListener('keyup', renderMath);
+                    for(let i=0;i<latexSpan.length;i++){
+                        latexSpan[i].addEventListener('keyup', renderMath);
+                    }
 
                     function renderMath(){
-                        let oldMath = mathSpan.innerHTML;
-                        
+                        let oldMath = mathSpan;
                         try {
-                            katex.render(this.value, mathSpan);
+                            for(let i=0;i<mathSpan.length;i++){
+                                katex.render(this.value, mathSpan[i]);
+                            }
                         }
                         catch(e) { 
                             // KaTeX parse error while typing, to prevent rendered math from dissappearing while typing
                             // partially complete markup
-                            mathSpan.innerHTML = oldMath;
+                            for(let $i=0;i<mathSpan.length;i++){
+                                mathSpan.innerHTML = oldMath.innerHTML;
+                            }
                         }
                     }
 
